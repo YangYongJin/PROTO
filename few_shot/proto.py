@@ -2,7 +2,7 @@ import torch
 from torch.optim import Optimizer
 from torch.nn import Module
 from typing import Callable
-import torch.nn.functional.mse_loss as mse
+import torch.nn.functional as F
 
 from few_shot.utils import pairwise_distances
 
@@ -64,7 +64,7 @@ def proto_net_episode(model: Module,
 
     # Calculate log p_{phi} (y = k | x)
     log_p_y = (-distances).log_softmax(dim=1)
-    loss = loss_fn(log_p_y, y) + mse(s_avg, q_avg)
+    loss = loss_fn(log_p_y, y) + F.mse_loss(s_avg, q_avg)
 
     # Prediction probabilities are softmax over distances
     y_pred = (-distances).softmax(dim=1)
