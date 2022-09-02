@@ -84,7 +84,7 @@ def fit(model: Module, encoder: Module, optimiser: Optimizer, loss_fn: Callable,
 
     callbacks = CallbackList([DefaultCallback(), ] +
                              (callbacks or []) + [ProgressBarLogger(), ])
-    callbacks.set_model(model)
+    callbacks.set_model(model, encoder)
     callbacks.set_params({
         'num_batches': num_batches,
         'batch_size': batch_size,

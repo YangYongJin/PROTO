@@ -138,6 +138,7 @@ class EvaluateFewShot(Callback):
 
             loss, y_pred = self.eval_fn(
                 self.model,
+                self.encoder,
                 self.optimiser,
                 self.loss_fn,
                 x,

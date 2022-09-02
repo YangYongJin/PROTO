@@ -19,6 +19,7 @@ class CallbackList(object):
     # Arguments
         callbacks: List of `Callback` instances.
     """
+
     def __init__(self, callbacks):
         self.callbacks = [c for c in callbacks]
 
@@ -26,9 +27,9 @@ class CallbackList(object):
         for callback in self.callbacks:
             callback.set_params(params)
 
-    def set_model(self, model):
+    def set_model(self, model, encoder):
         for callback in self.callbacks:
-            callback.set_model(model)
+            callback.set_model(model, encoder)
 
     def on_epoch_begin(self, epoch, logs=None):
         """Called at the start of an epoch.
@@ -96,8 +97,9 @@ class Callback(object):
     def set_params(self, params):
         self.params = params
 
-    def set_model(self, model):
+    def set_model(self, model, encoder):
         self.model = model
+        self.encoder = encoder
 
     def on_epoch_begin(self, epoch, logs=None):
         pass
@@ -123,6 +125,7 @@ class DefaultCallback(Callback):
 
     NB The metrics are calculated with a moving model
     """
+
     def on_epoch_begin(self, batch, logs=None):
         self.seen = 0
         self.totals = {}
@@ -149,6 +152,7 @@ class DefaultCallback(Callback):
 
 class ProgressBarLogger(Callback):
     """TQDM progress bar that displays the running average of loss and other metrics."""
+
     def __init__(self):
         super(ProgressBarLogger, self).__init__()
 
@@ -273,6 +277,7 @@ class EvaluateMetrics(Callback):
         if the model is to be evaluated on many datasets separately.
         suffix: Suffix to append to the names of the metrics when they is logged.
     """
+
     def __init__(self, dataloader, prefix='val_', suffix=''):
         super(EvaluateMetrics, self).__init__()
         self.dataloader = dataloader
@@ -287,7 +292,8 @@ class EvaluateMetrics(Callback):
     def on_epoch_end(self, epoch, logs=None):
         logs = logs or {}
         logs.update(
-            evaluate(self.model, self.dataloader, self.prepare_batch, self.metrics, self.loss_fn, self.prefix, self.suffix)
+            evaluate(self.model, self.dataloader, self.prepare_batch,
+                     self.metrics, self.loss_fn, self.prefix, self.suffix)
         )
 
 
@@ -327,7 +333,8 @@ class ReduceLROnPlateau(Callback):
 
         self.monitor = monitor
         if factor >= 1.0:
-            raise ValueError('ReduceLROnPlateau does not support a factor >= 1.0.')
+            raise ValueError(
+                'ReduceLROnPlateau does not support a factor >= 1.0.')
         self.factor = factor
         self.min_lr = min_lr
         self.min_delta = min_delta
@@ -483,7 +490,8 @@ class ModelCheckpoint(Callback):
                                   (epoch + 1, self.monitor, self.best))
             else:
                 if self.verbose > 0:
-                    print('\nEpoch %05d: saving model to %s' % (epoch + 1, filepath))
+                    print('\nEpoch %05d: saving model to %s' %
+                          (epoch + 1, filepath))
                 torch.save(self.model.state_dict(), filepath)
 
 
@@ -505,7 +513,8 @@ class LearningRateScheduler(Callback):
         self.optimiser = self.params['optimiser']
 
     def on_epoch_begin(self, epoch, logs=None):
-        lrs = [self.schedule(epoch, param_group['lr']) for param_group in self.optimiser.param_groups]
+        lrs = [self.schedule(epoch, param_group['lr'])
+               for param_group in self.optimiser.param_groups]
 
         if not all(isinstance(lr, (float, np.float32, np.float64)) for lr in lrs):
             raise ValueError('The output of the "schedule" function '
