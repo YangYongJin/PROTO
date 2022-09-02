@@ -16,9 +16,9 @@ from config import PATH
 
 
 setup_dirs()
-# assert torch.cuda.is_available()
-# device = torch.device('cuda')
-device = 'cpu'
+assert torch.cuda.is_available()
+device = torch.device('cuda')
+# device = 'cpu'
 torch.backends.cudnn.benchmark = True
 
 
