@@ -65,7 +65,7 @@ def proto_net_episode(model: Module,
     # Calculate log p_{phi} (y = k | x)
     log_p_y = (-distances).log_softmax(dim=1)
     loss = loss_fn(log_p_y, y) + 0.1*torch.cdist(prototypes,
-                                                 prototypes)  # + F.mse_loss(s_avg, q_avg)
+                                                 prototypes).sum()  # + F.mse_loss(s_avg, q_avg)
 
     # Prediction probabilities are softmax over distances
     y_pred = (-distances).softmax(dim=1)
