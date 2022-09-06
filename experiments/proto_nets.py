@@ -90,7 +90,8 @@ def run():
     # Training #
     ############
     print(f'Training Prototypical network on {args.dataset}...')
-    optimiser = Adam(model.parameters(), lr=1e-3)
+    optimiser = Adam(list(model.parameters()) +
+                     list(encoder.parameters()), lr=1e-3)
     loss_fn = torch.nn.NLLLoss().cuda()
 
     def lr_schedule(epoch, lr):
